@@ -1,4 +1,4 @@
-ngN
+ngN [![Build Status](https://travis-ci.org/RobinBressan/ng-n.svg?branch=master)](https://travis-ci.org/RobinBressan/ng-n)
 ===============
 
 Fully customizable notification module for your AngularJS application.
