@@ -66,7 +66,28 @@ var notification = $n();
 notification.save(3000); // Will be save in 3000ms
 ```
 
-When a notification is saved, the `save` event is triggered. Same thing for `kill` method.
+When a notification is saved, the `save` event is triggered. Same thing for `kill` method:
+
+```javascript
+
+var notification = $n();
+
+notification
+    .on('save', function() {
+        storeToDatabase();
+    })
+    .on('kill', function() {
+        removeFromDatabase();
+    });
+
+// You can also define you own events
+
+notification
+    .on('something', function() {
+        console.log('something happens');
+    })
+    .trigger('something');
+```
 
 You can also create a custom `$n` factory by using `$n.extend`:
 
@@ -93,6 +114,28 @@ error().content('Oups').save();
 
 // And a success
 success().content('You did it!').save();
+```
+
+And what about registering this custom factories in angular DI? Let's do it:
+
+```javascript
+var app = angular.module('myApp', ['ngN']);
+
+app.factory('withContent', ['$n', function($n) {
+    return $n.extend({ content: ''});
+}]);
+
+app.factory('info', ['withContent', function(withContent) {
+    return withContent.extend({ title: 'Info' });
+}]);
+
+app.factory('error', ['withContent', function(withContent) {
+    return withContent.extend({ title: 'Error' });
+}]);
+
+app.factory('success', ['withContent', function(withContent) {
+    return withContent.extend({ title: 'Success' });
+}]);
 ```
 
 #### Display the notifications

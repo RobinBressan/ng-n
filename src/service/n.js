@@ -45,7 +45,7 @@ define(function(require) {
 
                 save: function(delay) {
                     if (saved) {
-                        throw new Error('You can not savetwo times the same notification');
+                        throw new Error('You can not save two times the same notification');
                     }
 
                     if (delay > 0) {
