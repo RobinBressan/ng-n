@@ -56,6 +56,7 @@ A notification always has some persistent methods:
 * `trigger(event)`: Call all event listeners for a given event
 * `kill()`: Mark the notification as expired
 * `save()`: Save the notification. It means it will be displayed if not expired
+* `timeout(time)`: Auto kill the notification when timeout ends
 
 Furthermore you can give a delay to the `save` method:
 
