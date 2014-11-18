@@ -1,19 +1,26 @@
 define(function(require) {
     'use strict';
 
-    function nView ($n) {
+    function nView ($n, $compile) {
         return {
             restrict: 'E',
-            transclude: true,
             scope: true,
-            template: '<div ng-repeat="notification in $n.registry()" ng-if="!notification.expired()" transclude-template></div>',
-            link: function(scope) {
-                scope.$n = $n;
+            compile: function(element, attrs, transclude) {
+                element.html([
+                    '<div ng-repeat="notification in $n.registry()" ng-if="!notification.expired()">',
+                    element.html(),
+                    '</div>'
+                ].join(''));
+
+                return function(scope) {
+                    $compile(element.html())(scope);
+                    scope.$n = $n;
+                }
             }
         };
     };
 
-    nView.$inject = ['$n'];
+    nView.$inject = ['$n', '$compile'];
 
     return nView;
 });

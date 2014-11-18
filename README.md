@@ -152,6 +152,7 @@ To display the notifications you have to use the `n-view` directive:
 ```
 
 For example you can do:
+
 ```html
 <n-view>
     <div class="alert">
@@ -165,9 +166,18 @@ For example you can do:
 ```
 
 Or maybe using the bootstrap angular-ui `alert` directive:
+
 ```html
 <n-view>
     <alert type="{{ notification.type() }}" close="notification.kill()">{{ notification.content() }}</alert>
+</n-view>
+```
+
+You can also use a `ng-include` directive inside a `ng-view`:
+
+```html
+<n-view>
+    <ng-include src="'template.html'"></ng-include>
 </n-view>
 ```
 
