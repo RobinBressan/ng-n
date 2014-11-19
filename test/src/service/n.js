@@ -85,11 +85,16 @@
             var notification = $n(),
                 onCustomEvent = jasmine.createSpy('onCustomEvent'),
                 onCustomEvent2 = jasmine.createSpy('onCustomEvent2'),
-                onCustom2Event = jasmine.createSpy('onCustom2Event');
+                onCustom2Event = jasmine.createSpy('onCustom2Event'),
+                onKill = jasmine.createSpy('onKill');
+
+            // Let's add a useless other notification to test if there is not any memory leak
+            $n().save();
 
             notification.on('customEvent', onCustomEvent);
             notification.on('customEvent', onCustomEvent2);
             notification.on('custom2Event', onCustom2Event);
+            notification.on('kill', onKill);
 
             expect(onCustomEvent).not.toHaveBeenCalled();
             expect(onCustomEvent2).not.toHaveBeenCalled();
@@ -101,8 +106,9 @@
             expect(onCustomEvent2).toHaveBeenCalledWith(notification);
             expect(onCustom2Event).not.toHaveBeenCalled();
 
-            notification.trigger('custom2Event');
+            notification.trigger('custom2Event').kill();
             expect(onCustom2Event).toHaveBeenCalledWith(notification);
+            expect(onKill).toHaveBeenCalledWith(notification);
         });
 
         it('should produce custom factory when extend is called', function() {
