@@ -160,6 +160,10 @@ For example you can do:
         <p>
             {{ notification.content() }}
             <a ng-click="notification.kill()">Close</a>
+
+            <!-- You can add a listener on this `cancel` event by using `on` method on your notification definition -->
+            <!-- This way you are free to add any custom behaviour! -->
+            <a ng-click="notification.trigger('cancel').kill()">Cancel</a>
         </p>
     </div>
 </n-view>
@@ -180,6 +184,7 @@ You can also use a `ng-include` directive inside a `ng-view`:
     <ng-include src="'template.html'"></ng-include>
 </n-view>
 ```
+
 
 Build
 ------

@@ -36,7 +36,8 @@ define(function(require) {
 
             var callbacks = {},
                 saved = false,
-                expired = false;
+                expired = false,
+                model;
 
             model = {
                 expired: function() {
@@ -95,7 +96,7 @@ define(function(require) {
 
                 trigger: function(event) {
                     if (!callbacks[event]) {
-                        return;
+                        return model;
                     }
 
                     for (var i in callbacks[event]) {
