@@ -3,7 +3,7 @@ ngN [![Build Status](https://travis-ci.org/RobinBressan/ng-n.svg?branch=master)]
 
 Fully customizable notification module for your AngularJS application.
 
-See demo: http://jsfiddle.net/RobinBressan/ege3gu9c/7/
+See demo: http://jsfiddle.net/RobinBressan/ege3gu9c
 
 # Installation
 
