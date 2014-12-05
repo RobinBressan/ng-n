@@ -144,7 +144,7 @@ app.factory('success', ['withContent', function(withContent) {
 
 ##### Notification stack
 
-Since v1.2 you can group some notifications into a `stack`. A stack will be dispatch as a single notification but with a `flush` method to dispatch all its notifications:
+Since v1.2 you can group some notifications into a `stack`. A stack will be dispatched as a single notification but with a `flush` method to dispatch all its notifications:
 
 ```javascript
     var myStack = $n.stack();
