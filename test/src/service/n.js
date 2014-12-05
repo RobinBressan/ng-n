@@ -140,5 +140,41 @@
 
             expect($n.registry()).toBe(factory2.registry());
         });
+
+        it('should produce custom factory with a $$rootFactory property', function() {
+            var factory = $n.extend({ title: 'default' });
+
+            expect(factory.$$rootFactory).toBe($n);
+        });
+
+        it('shoud create a stack when stack is called', function() {
+            var stack = $n.stack(),
+                notification1 = $n(),
+                notification2 = $n();
+
+            spyOn(notification1, 'save');
+            spyOn(notification2, 'save');
+
+            var listener = jasmine.createSpy('listener');
+
+            stack.push(notification1);
+            stack.push(notification2);
+
+            expect(notification1.save).not.toHaveBeenCalled();
+            expect(notification2.save).not.toHaveBeenCalled();
+
+            var stackedNotification = stack();
+
+            stackedNotification.on('flush', listener);
+
+            expect(stackedNotification.size()).toBe(2);
+            stackedNotification.flush();
+            expect(stackedNotification.size()).toBe(0);
+
+            expect(stackedNotification.expired()).toBe(true);
+
+            expect(notification1.save).toHaveBeenCalled();
+            expect(notification2.save).toHaveBeenCalled();
+        });
     });
 }());

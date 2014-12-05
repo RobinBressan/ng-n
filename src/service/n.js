@@ -37,7 +37,8 @@ define(function(require) {
             var callbacks = {},
                 saved = false,
                 expired = false,
-                model;
+                model,
+                killTimeoutPromise;
 
             model = {
                 expired: function() {
@@ -57,13 +58,15 @@ define(function(require) {
                     }
 
                     if (config.timeout > -1) {
-                        $timeout(function() {
+                        killTimeoutPromise = $timeout(function() {
                             model.kill();
                         }, config.timeout);
                     }
 
                     model.$$hashKey = '_n_' + (++hashKeyIndex);
-                    registry.push(model);
+                    model.$$insertIndex = model.$$insertIndex !== undefined ? model.$$insertIndex : registry.length;
+
+                    registry.splice(model.$$insertIndex, 0, model);
 
                     saved = true;
                     model.trigger('save');
@@ -74,6 +77,11 @@ define(function(require) {
                 kill: function() {
                     if (expired) {
                         throw new Error('You can not kill two times the same notification');
+                    }
+
+                    if (killTimeoutPromise) {
+                        $timeout.cancel(killTimeoutPromise);
+                        killTimeoutPromise = null;
                     }
 
                     expired = true;
@@ -120,6 +128,8 @@ define(function(require) {
                     return factory(merge(config, defaultConfig));
                 };
 
+                f.$$rootFactory = factory.$$rootFactory ? factory.$$rootFactory : factory;
+
                 f.extend = wrap(factory, 'extend', function(extend) {
                     return function(config) {
                         return extend(merge(config, defaultConfig));
@@ -127,6 +137,7 @@ define(function(require) {
                 });
 
                 f.registry = factory.registry;
+                f.stack = factory.stack;
 
                 return f;
             }(merge(config, defaultConfig)));
@@ -135,6 +146,49 @@ define(function(require) {
         factory.registry = function() {
             return registry;
         };
+
+        factory.stack = function() {
+            return (function() {
+                var queue = [],
+                    model;
+
+                model = function() {
+                    var notification = factory.$$rootFactory ? factory.$$rootFactory() : factory();
+
+                    (function(queue) {
+                        notification.size = function() {
+                            return queue.length;
+                        };
+
+                        notification.flush = function() {
+                            notification.trigger('flush');
+                            notification.kill();
+
+                            for (var i = queue.length - 1; i >= 0; i--) {
+                                queue[i].$$insertIndex = notification.$$insertIndex;
+                                queue[i].save();
+                            }
+
+                            queue = [];
+                        };
+
+                        notification.queue = queue;
+                    }(queue))
+
+                    queue = [];
+
+                    return notification;
+                }
+
+                model.push = function(entry) {
+                    queue.push(entry);
+
+                    return model;
+                };
+
+                return model;
+            }())
+        }
 
         return factory;
     };
