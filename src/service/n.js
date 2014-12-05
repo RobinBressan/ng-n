@@ -120,6 +120,8 @@ define(function(require) {
                     return factory(merge(config, defaultConfig));
                 };
 
+                f.$$rootFactory = factory.$$rootFactory ? factory.$$rootFactory : factory;
+
                 f.extend = wrap(factory, 'extend', function(extend) {
                     return function(config) {
                         return extend(merge(config, defaultConfig));
@@ -127,6 +129,7 @@ define(function(require) {
                 });
 
                 f.registry = factory.registry;
+                f.stack = factory.stack;
 
                 return f;
             }(merge(config, defaultConfig)));
@@ -135,6 +138,44 @@ define(function(require) {
         factory.registry = function() {
             return registry;
         };
+
+        factory.stack = function() {
+            return (function() {
+                var queue = [],
+                    model;
+
+                model = function() {
+                    var notification = factory.$$rootFactory ? factory.$$rootFactory() : factory();
+
+                    (function(queue) {
+                        notification.size = function() {
+                            return queue.length;
+                        };
+
+                        notification.flush = function() {
+                            notification.trigger('flush');
+                            notification.kill();
+
+                            for (var i in queue) {
+                                queue[i].save();
+                            }
+                        };
+
+                        notification.queue = queue;
+                    }(queue))
+
+                    queue = [];
+
+                    return notification;
+                }
+
+                model.push = function(entry) {
+                    queue.push(entry);
+                };
+
+                return model;
+            }())
+        }
 
         return factory;
     };

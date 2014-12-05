@@ -91,6 +91,8 @@ notification
     .trigger('something');
 ```
 
+## Custom notification factories
+
 You can also create a custom `$n` factory by using `$n.extend`:
 
 ```javascript
@@ -140,6 +142,42 @@ app.factory('success', ['withContent', function(withContent) {
 }]);
 ```
 
+##### Notification stack
+
+Since v1.2 you can group some notifications into a `stack`. A stack will be dispatch as a single notification but with a `flush` method to dispatch all its notifications:
+
+```javascript
+    var myStack = $n.stack();
+
+    var notification1 = $n({ content: 'I am stacked!'});
+    myStack.push(notification1);
+
+    var notification2 = $n({ content: 'I am stacked too!'});
+    myStack.push(notification2);
+
+    // The stack contains two notification. To create the stacked notification just call it as a function
+    myStack()
+        .timeout(5000)
+        .save();
+```
+
+A stack exposes two new methods:
+
+* `size()`: Return a the notification count stored into the stack
+* `flush()`: Dispatch all notifications stored into the stack and empty it
+
+When a stacked notification is flushed, the `flush` event is triggered:
+
+```javascript
+
+myStack
+    .on('flush', function() {
+        markAsRead();
+    });
+```
+
+To handle display for a stack, see [Display the notifications](#display-the-notifications).
+
 #### Display the notifications
 
 To display the notifications you have to use the `n-view` directive:
@@ -187,6 +225,34 @@ You can also use a `ng-include` directive inside a `ng-view`:
 </n-view>
 ```
 
+##### Display a stacked notification
+
+A stacked notification is displayed the same way than a classic notification. You can detect it by checking if the `flush` method is defined:
+
+```html
+<n-view>
+    <div class="alert" ng-if="!notification.flush">
+        <h4>{{ notification.title() }}</h4>
+        <p>
+            {{ notification.content() }}
+            <a ng-click="notification.kill()">Close</a>
+
+            <!-- You can add a listener on this `cancel` event by using `on` method on your notification definition -->
+            <!-- This way you are free to add any custom behaviour! -->
+            <a ng-click="notification.trigger('cancel').kill()">Cancel</a>
+        </p>
+    </div>
+    <div class="alert" ng-if="!notification.flush">
+        <!-- We are in a stacked notification -->
+        <h4>{{ notification.size() }} notifications</h4>
+        <p>
+            <!-- You can display all notifications in the stack by calling the `flush` method -->
+            <a ng-click="notification.flush()">Show all</a>
+            <a ng-click="notification.kill()">Close</a>
+        </p>
+    </div>
+</n-view>
+```
 
 Build
 ------
