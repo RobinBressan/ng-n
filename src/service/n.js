@@ -63,7 +63,9 @@ define(function(require) {
                     }
 
                     model.$$hashKey = '_n_' + (++hashKeyIndex);
-                    registry.push(model);
+                    model.$$insertIndex = model.$$insertIndex !== undefined ? model.$$insertIndex : registry.length;
+
+                    registry.splice(model.$$insertIndex, 0, model);
 
                     saved = true;
                     model.trigger('save');
@@ -157,8 +159,11 @@ define(function(require) {
                             notification.kill();
 
                             for (var i in queue) {
+                                queue[i].$$insertIndex = notification.$$insertIndex - i;
                                 queue[i].save();
                             }
+
+                            queue = [];
                         };
 
                         notification.queue = queue;
@@ -171,6 +176,8 @@ define(function(require) {
 
                 model.push = function(entry) {
                     queue.push(entry);
+
+                    return model;
                 };
 
                 return model;
