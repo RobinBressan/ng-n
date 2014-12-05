@@ -37,7 +37,8 @@ define(function(require) {
             var callbacks = {},
                 saved = false,
                 expired = false,
-                model;
+                model,
+                killTimeoutPromise;
 
             model = {
                 expired: function() {
@@ -57,7 +58,7 @@ define(function(require) {
                     }
 
                     if (config.timeout > -1) {
-                        $timeout(function() {
+                        killTimeoutPromise = $timeout(function() {
                             model.kill();
                         }, config.timeout);
                     }
@@ -76,6 +77,11 @@ define(function(require) {
                 kill: function() {
                     if (expired) {
                         throw new Error('You can not kill two times the same notification');
+                    }
+
+                    if (killTimeoutPromise) {
+                        $timeout.cancel(killTimeoutPromise);
+                        killTimeoutPromise = null;
                     }
 
                     expired = true;
@@ -158,8 +164,8 @@ define(function(require) {
                             notification.trigger('flush');
                             notification.kill();
 
-                            for (var i in queue) {
-                                queue[i].$$insertIndex = notification.$$insertIndex - i;
+                            for (var i = queue.length - 1; i >= 0; i--) {
+                                queue[i].$$insertIndex = notification.$$insertIndex;
                                 queue[i].save();
                             }
 
