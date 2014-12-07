@@ -170,7 +170,7 @@ When a stacked notification is flushed, the `flush` event is triggered:
 
 ```javascript
 
-myStack
+myStack()
     .on('flush', function() {
         markAsRead();
     });
