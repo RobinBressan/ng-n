@@ -176,5 +176,29 @@
             expect(notification1.save).toHaveBeenCalled();
             expect(notification2.save).toHaveBeenCalled();
         });
+
+        it('shoud kill all contained notifications when a stacked notification is killed', function() {
+            var stack = $n.stack(),
+                notification1 = $n(),
+                notification2 = $n();
+
+            spyOn(notification1, 'kill');
+            spyOn(notification2, 'kill');
+
+            stack.push(notification1);
+            stack.push(notification2);
+
+            expect(notification1.kill).not.toHaveBeenCalled();
+            expect(notification2.kill).not.toHaveBeenCalled();
+
+            var stackedNotification = stack();
+
+            expect(stackedNotification.size()).toBe(2);
+            stackedNotification.kill();
+            expect(stackedNotification.size()).toBe(0);
+
+            expect(notification1.kill).toHaveBeenCalled();
+            expect(notification2.kill).toHaveBeenCalled();
+        });
     });
 }());

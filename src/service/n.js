@@ -153,7 +153,8 @@ define(function(require) {
                     model;
 
                 model = function() {
-                    var notification = factory.$$rootFactory ? factory.$$rootFactory() : factory();
+                    var notification = factory.$$rootFactory ? factory.$$rootFactory() : factory(),
+                        flushed = false;
 
                     (function(queue) {
                         notification.size = function() {
@@ -162,15 +163,25 @@ define(function(require) {
 
                         notification.flush = function() {
                             notification.trigger('flush');
-                            notification.kill();
 
                             for (var i = queue.length - 1; i >= 0; i--) {
                                 queue[i].$$insertIndex = notification.$$insertIndex;
                                 queue[i].save();
                             }
 
-                            queue = [];
+                            flushed = true;
+                            notification.kill();
                         };
+
+                        notification.on('kill', function(n) {
+                            if (!flushed) {
+                                for (var j in queue) {
+                                    queue[j].kill();
+                                }
+                            }
+
+                            queue = [];
+                        });
 
                         notification.queue = queue;
                     }(queue))
