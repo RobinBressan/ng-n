@@ -15,6 +15,10 @@ define(function(require) {
                 return function(scope) {
                     $compile(element.html())(scope);
                     scope.$n = $n;
+
+                    scope.$on('$destroy', function() {
+                        scope.$n = null;
+                    });
                 }
             }
         };
