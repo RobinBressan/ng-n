@@ -7,7 +7,7 @@ define(function(require) {
             scope: true,
             compile: function(element, attrs, transclude) {
                 element.html([
-                    '<div ng-repeat="notification in $n.registry()" ng-if="!notification.expired()">',
+                    '<div ng-repeat="notification in $n.registry()" ng-show="!notification.expired()">',
                     element.html(),
                     '</div>'
                 ].join(''));
